@@ -16,6 +16,7 @@ export * from './ui/MasterDetail/useMasterDetailEditor';
 export * from './ui/MasterDetail/MasterDetailStore';
 export * from './ui/MasterDetail/MasterDetailManager';
 export * from './ui/MasterDetail/MasterDetailContext';
+export * from './ui/MasterDetail/useChangeConfirm';
 
 export * from './crud/editor/EntityEditorProps';
 export * from './crud/editor/form/createUseAntdForm';
