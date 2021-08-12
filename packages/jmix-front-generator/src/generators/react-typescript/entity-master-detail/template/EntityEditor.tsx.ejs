@@ -16,6 +16,7 @@ import {
   useMasterDetailEditor,
   EntityEditorProps,
   useCreateAntdResetForm,
+  useChangeConfirm
 } from '@haulmont/jmix-react-ui';
 import { gql } from "@apollo/client";
 import "<%= relDirShift %>app/App.css";
@@ -52,6 +53,11 @@ const <%= className %> = observer((props: EntityEditorProps<<%= entity.className
   } = props;
 
   const [form] = useForm();
+  const {modify} = useChangeConfirm()
+
+  const fieldComponentProps = {
+    onChange: modify
+  }
 
   const {
     <% if (Object.keys(associations).length > 0) { -%>
@@ -112,7 +118,7 @@ const <%= className %> = observer((props: EntityEditorProps<<%= entity.className
             associationOptions={relationOptions?.get('<%= dollarsToUnderscores(associations[attr.name].name) %>')}
           <% } %>
 
-            formItemProps={{
+          formItemProps={{
             style: {marginBottom: "12px"},
           <% if (attr.mandatory) { -%>
             rules: [{required: true}],
@@ -121,6 +127,7 @@ const <%= className %> = observer((props: EntityEditorProps<<%= entity.className
             valuePropName: "checked",
           <% } -%>
           }}
+          componentProps={fieldComponentProps}
         /> <%# end Field %>
       <% }) %>
 

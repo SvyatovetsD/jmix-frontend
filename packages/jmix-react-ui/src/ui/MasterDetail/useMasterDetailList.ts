@@ -61,39 +61,33 @@ export function useMasterDetailList<
 
   const handleSelectionChange: EntityListHookResultType['handleSelectionChange'] = useCallback(
     (selectedEntityIds) => {
-      // tslint:disable-next-line:no-console
-      console.log('handleSelectionChange')
+      if (masterDetailStore.saved) {
+        masterDetailStore.setIsOpenEditor(true);
+        masterDetailStore.setSelectedEntityId(selectedEntityIds[0]);
+      } else {
+        // TODO: replace by ant's confirm window
+        const leave = confirm('do you want to leave without saving your changes?');
 
-      // Где-то тут надо проверять, сохранено ли в редакторе или нет
-      // Если сохранено, то менять экран
-      // Если не сохранено, то отменять выполнение
-      if(selectedEntityIds.length === 0) {
-        // tslint:disable-next-line:no-console
-        console.log('if(selectedEntityIds.length === 0) {')
+        if (!leave) {
+          selectedEntityIds.length = 0;
+
+          if (masterDetailStore.selectedEntityId) {
+            selectedEntityIds.push(masterDetailStore.selectedEntityId)
+          }
+
+          return;
+        }
+
+        masterDetailStore.setSaved(true);
+        masterDetailStore.setIsOpenEditor(true);
+        masterDetailStore.setSelectedEntityId(selectedEntityIds[0]);
+      }
+
+      if (selectedEntityIds.length === 0) {
         masterDetailStore.setIsOpenEditor(false);
         masterDetailStore.setSelectedEntityId(undefined);
       }
 
-      if (masterDetailStore.saved) {
-        // tslint:disable-next-line:no-console
-        console.log('if saved')
-        masterDetailStore.setIsOpenEditor(true);
-        masterDetailStore.setSelectedEntityId(selectedEntityIds[0]);
-      } else {
-        const leave = confirm('do you want to leave without saving your changes?');
-        // tslint:disable-next-line:no-console
-        console.log('if !masterDetailStore.saved && leave');
-
-        if (leave) {
-          masterDetailStore.setSaved(true);
-          masterDetailStore.setIsOpenEditor(true);
-          masterDetailStore.setSelectedEntityId(selectedEntityIds[0]);
-        } else {
-          return;
-        }
-      }
-
-      // Если не сохранено, то вот это не надо выполнять плиз ок
       entityListData.handleSelectionChange(selectedEntityIds);
     },
     [intl, masterDetailStore]

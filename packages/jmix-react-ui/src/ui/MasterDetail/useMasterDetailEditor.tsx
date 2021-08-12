@@ -1,8 +1,9 @@
-import { dollarsToUnderscores, LoadQueryVars } from "@haulmont/jmix-react-core";
+import {dollarsToUnderscores, EntityInstance, LoadQueryVars} from "@haulmont/jmix-react-core";
 import { useCallback, useEffect } from "react";
 import { useSubmitCallback } from "../../crud/editor/ui-callbacks/useSubmitCallback";
 import { useEntityEditor, EntityEditorHookOptions, EntityEditorHookResult } from "../../crud/editor/useEntityEditor";
 import { useMasterDetailStore } from "./MasterDetailContext";
+import {useChangeConfirm} from "./useChangeConfirm";
 
 export interface EntityMasterDetailEditorookOptions<TEntity, TData, TQueryVars, TMutationVars>
 extends EntityEditorHookOptions<TEntity, TData, TQueryVars, TMutationVars> {
@@ -23,9 +24,18 @@ export function useMasterDetailEditor<
     const {
         entityName,
         entityInstance,
-        onCommit,
         resetEntityEditorForm,
     } = options;
+
+    const {save} = useChangeConfirm();
+
+    const onCommit = (ei: EntityInstance<TEntity>) => {
+      save();
+
+      if (options.onCommit) {
+        options.onCommit(ei);
+      }
+    }
 
     const entityEditorData = useEntityEditor<TEntity, TData, TQueryVars, TMutationVars>(options);
 
