@@ -65,22 +65,26 @@ export function useMasterDetailList<
         masterDetailStore.setIsOpenEditor(true);
         masterDetailStore.setSelectedEntityId(selectedEntityIds[0]);
       } else {
-        // TODO: replace by ant's confirm window
-        const leave = confirm('do you want to leave without saving your changes?');
+        modals.open({
+          content: intl.formatMessage({id: 'masterDetail.create.ifEntitySelected'}),
+          okText: intl.formatMessage({id: "common.ok"}),
+          cancelText: intl.formatMessage({id: "common.cancel"}),
+          onOk: () => {
+            masterDetailStore.setSaved(true);
+            masterDetailStore.setIsOpenEditor(true);
+            masterDetailStore.setSelectedEntityId(selectedEntityIds[0]);
+          },
+          onCancel: () => {
+            // Clear an array, but save the pointer.
+            selectedEntityIds.length = 0;
 
-        if (!leave) {
-          selectedEntityIds.length = 0;
+            const prevSelectedRow = masterDetailStore.selectedEntityId;
 
-          if (masterDetailStore.selectedEntityId) {
-            selectedEntityIds.push(masterDetailStore.selectedEntityId)
+            if (prevSelectedRow) {
+              selectedEntityIds.push(prevSelectedRow)
+            }
           }
-
-          return;
-        }
-
-        masterDetailStore.setSaved(true);
-        masterDetailStore.setIsOpenEditor(true);
-        masterDetailStore.setSelectedEntityId(selectedEntityIds[0]);
+        })
       }
 
       if (selectedEntityIds.length === 0) {
