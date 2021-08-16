@@ -109,8 +109,10 @@ const SCR_DATATYPESTESTENTITY_LIST = gql`
 
 export const DatatypesTestCards = observer(() => {
   const {
+    items,
+    count,
     executeListQuery,
-    listQueryResult: { loading, error, data },
+    listQueryResult: { loading, error },
     handlePaginationChange,
     entityListState
   } = useEntityList<DatatypesTestEntity>({
@@ -124,27 +126,24 @@ export const DatatypesTestCards = observer(() => {
     return <RetryDialog onRetry={executeListQuery} />;
   }
 
-  if (loading || data == null) {
+  if (loading || items == null) {
     return <Spinner />;
   }
 
-  const dataSource = data?.scr_DatatypesTestEntityList ?? [];
-  const pagesTotal = data?.scr_DatatypesTestEntityCount ?? 0;
-
   return (
     <div className={styles.narrowLayout}>
-      {dataSource.map(e => (
+      {items.map(item => (
         <Card
-          title={e._instanceName}
-          key={e.id ? getStringId(e.id) : undefined}
+          title={item._instanceName}
+          key={item.id ? getStringId(item.id) : undefined}
           style={{ marginBottom: "12px" }}
         >
-          {getFields(e).map(p => (
+          {getFields(item).map(fieldName => (
             <EntityProperty
               entityName={DatatypesTestEntity.NAME}
-              propertyName={p}
-              value={e[p]}
-              key={p}
+              propertyName={fieldName}
+              value={item[fieldName]}
+              key={fieldName}
             />
           ))}
         </Card>
@@ -154,7 +153,7 @@ export const DatatypesTestCards = observer(() => {
         <Paging
           paginationConfig={entityListState.pagination ?? {}}
           onPagingChange={handlePaginationChange}
-          total={pagesTotal}
+          total={count}
         />
       </div>
     </div>

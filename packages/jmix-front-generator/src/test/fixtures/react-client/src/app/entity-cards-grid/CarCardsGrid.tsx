@@ -66,8 +66,10 @@ const SCR_CAR_LIST = gql`
 
 export const CarCardsGrid = observer(() => {
   const {
+    items,
+    count,
     executeListQuery,
-    listQueryResult: { loading, error, data },
+    listQueryResult: { loading, error },
     handlePaginationChange,
     entityListState
   } = useEntityList<Car>({
@@ -82,25 +84,22 @@ export const CarCardsGrid = observer(() => {
     return <RetryDialog onRetry={executeListQuery} />;
   }
 
-  if (loading || data == null) {
+  if (loading || items == null) {
     return <Spinner />;
   }
-
-  const dataSource = data?.scr_CarList ?? [];
-  const pagesTotal = data?.scr_CarCount ?? 0;
 
   return (
     <div className={styles.narrowLayout}>
       <Row gutter={[12, 12]}>
-        {dataSource.map(e => (
-          <Col key={e.id ? getStringId(e.id) : undefined} xl={8} sm={24}>
-            <Card title={e._instanceName} style={{ height: "100%" }}>
-              {getFields(e).map(p => (
+        {items.map(item => (
+          <Col key={item.id ? getStringId(item.id) : undefined} xl={8} sm={24}>
+            <Card title={item._instanceName} style={{ height: "100%" }}>
+              {getFields(item).map(fieldName => (
                 <EntityProperty
                   entityName={Car.NAME}
-                  propertyName={p}
-                  value={e[p]}
-                  key={p}
+                  propertyName={fieldName}
+                  value={item[fieldName]}
+                  key={fieldName}
                 />
               ))}
             </Card>
@@ -112,7 +111,7 @@ export const CarCardsGrid = observer(() => {
         <Paging
           paginationConfig={entityListState.pagination ?? {}}
           onPagingChange={handlePaginationChange}
-          total={pagesTotal}
+          total={count}
         />
       </div>
     </div>

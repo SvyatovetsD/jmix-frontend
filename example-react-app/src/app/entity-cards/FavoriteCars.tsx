@@ -50,8 +50,10 @@ const SCR_FAVORITECAR_LIST = gql`
 
 export const FavoriteCars = observer(() => {
   const {
+    items,
+    count,
     executeListQuery,
-    listQueryResult: { loading, error, data },
+    listQueryResult: { loading, error },
     handlePaginationChange,
     entityListState
   } = useEntityList<FavoriteCar>({
@@ -65,27 +67,24 @@ export const FavoriteCars = observer(() => {
     return <RetryDialog onRetry={executeListQuery} />;
   }
 
-  if (loading || data == null) {
+  if (loading || items == null) {
     return <Spinner />;
   }
 
-  const dataSource = data?.scr_FavoriteCarList ?? [];
-  const pagesTotal = data?.scr_FavoriteCarCount ?? 0;
-
   return (
     <div className={styles.narrowLayout}>
-      {dataSource.map(e => (
+      {items.map(item => (
         <Card
-          title={e._instanceName}
-          key={e.id ? getStringId(e.id) : undefined}
+          title={item._instanceName}
+          key={item.id ? getStringId(item.id) : undefined}
           style={{ marginBottom: "12px" }}
         >
-          {getFields(e).map(p => (
+          {getFields(item).map(fieldName => (
             <EntityProperty
               entityName={FavoriteCar.NAME}
-              propertyName={p}
-              value={e[p]}
-              key={p}
+              propertyName={fieldName}
+              value={item[fieldName]}
+              key={fieldName}
             />
           ))}
         </Card>
@@ -95,7 +94,7 @@ export const FavoriteCars = observer(() => {
         <Paging
           paginationConfig={entityListState.pagination ?? {}}
           onPagingChange={handlePaginationChange}
-          total={pagesTotal}
+          total={count}
         />
       </div>
     </div>
