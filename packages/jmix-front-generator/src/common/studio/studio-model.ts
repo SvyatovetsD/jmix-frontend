@@ -15,7 +15,8 @@ export const enum StudioTemplatePropertyType {
   POLYMER_COMPONENT_NAME = 'POLYMER_COMPONENT_NAME',
   PASSWORD = 'PASSWORD',
   GRAPHQL_QUERY = 'GRAPHQL_QUERY',
-  MENU_ITEM = 'MENU_ITEM'
+  MENU_ITEM = 'MENU_ITEM',
+  STRING_ARRAY = 'STRING_ARRAY',
 }
 
 export interface StudioTemplateProperty {

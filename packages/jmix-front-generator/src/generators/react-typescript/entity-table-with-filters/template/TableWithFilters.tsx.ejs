@@ -1,0 +1,90 @@
+import React from "react";
+import { observer } from "mobx-react";
+import {
+  Spinner,
+  RetryDialog,
+  useEntityList,
+  EntityListProps,
+  registerScreen,
+  DataTable
+} from "@haulmont/jmix-react-ui";
+import { gql } from "@apollo/client";
+import {<%= entity.className %>} from "<%= relDirShift %><%= entity.path %>";
+
+const ENTITY_NAME = '<%= entity.name %>';
+const ROUTING_PATH = '/<%= nameLiteral %>';
+
+const FILTERABLE_FIELDS = <%- include(includesPath('RenderValue'), {data: filterableFields}) %>;
+
+const <%= dollarsToUnderscores(entity.name).toUpperCase() %>_LIST = gql`
+  query <%= dollarsToUnderscores(entity.name) %>List($limit: Int, $offset: Int, $orderBy: inp_<%= dollarsToUnderscores(entity.name) %>OrderBy, $filter: [inp_<%= dollarsToUnderscores(entity.name) %>FilterCondition]) {
+    <%= dollarsToUnderscores(entity.name) %>Count(filter: $filter)
+    <%= dollarsToUnderscores(entity.name) %>List(limit: $limit, offset: $offset, orderBy: $orderBy, filter: $filter) <%= query -%>
+  }
+`;
+
+const <%= className %> = observer((props: EntityListProps<<%= entity.className %>>) => {
+  const {entityList, onEntityListChange} = props;
+
+  const {
+    items,
+    count,
+    relationOptions,
+    listQueryResult: { loading, error },
+    entityListState,
+    executeListQuery,
+    handlePaginationChange,
+    handleSelectionChange,
+    handleFilterChange,
+    handleSortOrderChange,
+  } = useEntityList<<%= entity.className %>>({
+    listQuery: <%= dollarsToUnderscores(entity.name).toUpperCase() %>_LIST,
+    entityName: ENTITY_NAME,
+    routingPath: ROUTING_PATH,
+    entityList,
+    onEntityListChange,
+  });
+
+  if (error != null) {
+    console.error(error);
+    return <RetryDialog onRetry={executeListQuery} />;
+  }
+
+  <%# TODO Spinner is not properly centered -%>
+  if (loading || items == null) {
+    return <Spinner/>;
+  }
+
+  return (
+    <DataTable
+      items={items}
+      count={count}
+      relationOptions={relationOptions}
+      current={entityListState.pagination?.current}
+      pageSize={entityListState.pagination?.pageSize}
+      entityName={ENTITY_NAME}
+      loading={loading}
+      error={error}
+      enableFiltersOnColumns={entityList != null ? [] : FILTERABLE_FIELDS}
+      enableSortingOnColumns={entityList != null ? [] : FILTERABLE_FIELDS}
+      columnDefinitions={<%- include(includesPath('RenderValue'), {data: attributes.map(attr => attr.name)}) %>}
+      onRowSelectionChange={handleSelectionChange}
+      onFilterChange={handleFilterChange}
+      onSortOrderChange={handleSortOrderChange}
+      onPaginationChange={handlePaginationChange}
+      hideSelectionColumn={true}
+    />
+  );
+});
+
+registerScreen({
+  component: <%= className %>,
+  caption: 'screen.<%= className %>',
+  screenId: '<%= className %>',
+  menuOptions: {
+    pathPattern: ROUTING_PATH,
+    menuLink: ROUTING_PATH,
+  }
+});
+
+export default <%= className %>;
